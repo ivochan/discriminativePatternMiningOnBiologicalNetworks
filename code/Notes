@@ -1,0 +1,109 @@
+Descrizione del contenuto
+
+
+In ogni cartella GSEXXXXXX sono contenuti tutti i dati 
+relativi allo specifico dataset analizzato.
+
+I file all'interno sono organizzati in questo modo:
+
+-un file di testo GSEXXXXX.txt che contiene tutti i
+dati sui samples che costituiscono il dataset, 
+utilizzato per per elaborarlo e costruire, quindi,
+i due file .ds2 tramite lo script matalb 
+"prepareDataFromFileTXT.m", oltre che 
+per generare il file sampleGenes_GSEXXXXX.txt, che
+contiene l'elenco dei nomi dei geni estratti random dal dataset.
+(questo file e' stato denominato GenesList nel caso del dataset GSE68907,
+i cui dati sono descritti in formato matriciale e per questo 
+elaborato con lo script matlab "prepareDataFromMatrixTXT.m");
+
+-la cartella dati GSEXXXXX, che contiene ulteriori file sul dataset,
+che si occupano di specificare informazioni aggiuntive, l'elenco dei pazienti
+sani e dei pazienti malati ed il vettore degli stati ad 
+essi associato;
+
+-la cartella miningGraphsSampleSize, che contiene i due 
+file miningH.txt e miningU.txt, ottenuti dall'esecuzione
+del software sulle reti H e U costruite tramite le funzioni 
+scritte in c, con un parametro di sampleSize fisso a 200 geni
+ed i valori di Support Threashold (sigma) e Relevance Threshold
+(alpha) pari, rispettivamente, ai loro valori di default,
+ovvero 0.7 e 0.5.
+Inoltre, sono presenti due file .txt, denominati
+DiscriminativePatternGenesNameH_GSEXXXXX e 
+DiscriminativePatternGenesNameU_GSEXXXXX,
+che contengono i nomi dei geni, secondo la notazione adottata
+nelle analisi effettuate, tra cui sussistono gli archi dei patterns
+piu' discriminanti, riscontrati dal software.
+
+
+
+Nella cartella Software sono contenuti tutti i codici utilizzati per analizzare
+i file geodataset, nello specifico:
+
+-nella cartella "matlab" sono contenuti gli script che analizzano i dati del file di testo
+che contiene le informazioni sul dataset, per creare poi, i due file .ds2, uno per la rete 
+dei pazienti sani e uno per la rete dei pazienti malati.
+Nello specifico queste funzioni sono "prepareDataFromFileTXT.m" e "prepareDataFromMatrixTXT.m",
+(aggiunto per il motivo gia' specificato in precedenza),con l'ausilio dello script getGenesNames.m,
+che genera un file che contiene i nomi dei geni estratti dal dataset.
+Un altro script che e' stato aggiunto e' il file "gseDataAnalysis.m", che si occupa di 
+effettuare automaticamente l'analisi su diversi dataset, specificando il numero di geni
+(sampleSize) che si vuole considerare;
+
+-nella cartella c sono contenuti i file che implementano la funzione utilizzata per la costruzione dei grafi, associati
+ai file H e U, denominata "buildingGraphFiles";
+
+-nella cartella bash sono contenuti gli script che sono stati aggiunti per automatizzare il processo
+di creazione delle reti H e U di ogni dataset, in base ai parametri che si vogliono valutare nell'analisi.
+Nello specifico, lo script "costruzioneGrafiSampleSizeVariation.sh" si occupa di creare la coppia di grafi H e U
+(concretizzata nelle omonime cartelle) al variare del set di valori stabiliti per il parametro sampleSize 
+(in base ai quali sono stati gia' generati i rispettivi file tramite lo script in matlab), mentre lo script
+"costruzioneGrafiThetaAlphaVariation.sh" si occupa di generare le coppie di grafi H e U, costruite 
+per un valore fisso di sampleSize pari a 100, e al variare dei parametri di Support Threshold e Relevance Threshold, 
+a cui ci riferisce nello script come Theta e Alpha.
+Per utilizzare entrambi gli script e' necessario che questi siano situati nella stessa directory dei file c, 
+in quanto invocano la funzione "buildingGraphFiles", citata in precedenza, chiamandola, di volta in volta, sui
+differenti geodataset.
+Per riutilizzare questi script e' sufficiente modificare, al loro interno, il path che descrive il percorso
+in cui devono essere prelevati i dati da analizzare, il set di valori (setValues) tra cui devono variare
+Theta e Alpha,il parametro di sampleSize secondo cui devono essere costruite le reti (il quale deve essere coerente
+con quello utilizzato per generare i file H.ds2 e U.ds2 tramite matlab), il path della directory in cui si 
+vuole che vengano restituiti i risultati.
+Per quanto riguarda gli script "miningGraphsSampleSize.sh" e "miningGraphsThetaAlpha.sh", invece, questi si occupano
+di eseguire il main di esecuzione, scritto in java, a cui e' affidata la fase di mining sui grafi.
+Per riutilizzarli con altri dati, anche in questo caso, e' necessario elencare tutti i geodataset 
+che si vogliono analizzare, il set di valori assunti dai parametri che riceve il main di java, 
+ovvero la cartella H o U da elaborare, il path in cui trovarla, 
+i valori di Support e Relevance Threshold da assumere, il valore del flag verbose.
+L'output di questa chiamata verra' reindirizzato su file, denominato miningH.txt o miningU.txt, a seconda
+della rete analizzata e situato nel path definito nello stesso script.
+
+-nella cartella java e' contenuta la parte di software che si occupa di effettuare il mining sui grafi creati.
+E' stata modificata la classe Main_Heap.java in modo da poter effettuare una chiamata al metodo contenuto nella
+classe "IdentifyPatternGenesName.java", contenuta nel package util, introdotta per definire il metodo che si occupa 
+di generare un file che elenca, per ogni patter discriminante trovato, le coppie di geni che costituiscono
+l'arco ed il nome effettivo dei geni che lo compongono, effettuando un matching tra il file che 
+contiene i patterns piu' discriminanti (output di Main_Heap.java) e il file sampledGenes_GSEXXXXX.txt generato 
+da matlab, che contiene tutti i nomi dei geni estratti per il dataset in esame.
+E' stata modificata la classe DiscoverPatterns_Heap.java, del package mining, per alcuni problemi riscontrati
+nella gestione dei cicli presenti nei grafi analizzati.
+E' stata introdotta, nel package util, la classe FileDataAnalysis.java, per elaborare i file che contengono 
+le informazioni necessarie per l'elaborazione di dataset in forma matriciale, come il gia' citato GSE68907.
+Nello specifico, questa classe si occupa di elaborare il file .xml che contiene l'elenco dei pazienti i cui
+geni costituiscono il dataset, specificando quali tra questi siano sani e quali, invece, malati, ed il file
+che contiene le informazioni sui geni presenti nei campioni, in modo da estrarne i nomi e raccogliere cosi', 
+tutti gli elementi che dovra' utilizzare il relativo script matlab, quali il vettore degli stati associato
+ai pazienti e l'elenco dei nomi dei geni.
+
+
+
+
+
+
+
+
+
+
+
+
