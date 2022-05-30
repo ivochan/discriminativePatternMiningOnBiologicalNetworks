@@ -23,11 +23,3 @@ Nello specifico, sarà oggetto di studio un modello di rete biologica definito *
 Nei dati grezzi descritti come grafi connessi, si ricercano, usando la tecnica di Discriminating Pattern Mining, delle sottostrutture ricorrenti. 
 
 L’obiettivo è, duqnue, quello di identificare delle regolarità, dei gruppi di geni uniti da legami valutati in termini di Robustezza e Rilevanza.
-
-
-
-
-
-
-
-https://www.ncbi.nlm.nih.gov/geo/
